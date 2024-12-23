@@ -35,7 +35,7 @@ variable "admin_password" {
   default     = ""
 }
 
-resource "azurerm_random_password" "example" {
+resource "random_password" "example" {
   length  = 16
   special = true
   upper   = true
@@ -49,7 +49,7 @@ resource "azurerm_linux_virtual_machine" "example" {
   location            = azurerm_resource_group.example.location
   size                = "Standard_F2"
   admin_username      = "adminuser"
-  admin_password      = var.admin_password != "" ? var.admin_password : azurerm_random_password.example.result
+  admin_password      = var.admin_password != "" ? var.admin_password : random_password.example.result
   network_interface_ids = [
     azurerm_network_interface.example.id,
   ]
