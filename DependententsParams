@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'TYPE', choices: ['Compute', 'Network', 'Storage'], description: 'Select the type')
+    }
+    stages {
+        stage('Input') {
+            steps {
+                script {
+                    if (params.TYPE == 'Storage') {
+                        password = input message: 'Please enter a password:', 
+                            parameters: [password(name: 'STORAGE_PASSWORD', description: 'Password for Storage')]
+                    }
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    echo "Selected TYPE: ${params.TYPE}"
+                    if (params.TYPE == 'Storage') {
+                        echo "Storage password provided: ${password}"
+                    }
+                }
+            }
+        }
+    }
+}
