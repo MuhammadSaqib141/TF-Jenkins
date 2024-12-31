@@ -4,6 +4,10 @@ variable "admin_password1" {
   default     = ""
 }
 
+output "name" {
+  value = var.admin_password1
+}
+
 resource "azurerm_resource_group" "example" {
   name     = "example-resources"
   location = "West Europe"
