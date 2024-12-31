@@ -1,3 +1,9 @@
+variable "admin_password1" {
+  description = "Admin password for the VM"
+  type        = string
+  default     = ""
+}
+
 resource "azurerm_resource_group" "example" {
   name     = "example-resources"
   location = "West Europe"
