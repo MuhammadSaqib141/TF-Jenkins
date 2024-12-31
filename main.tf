@@ -35,6 +35,10 @@ variable "admin_password1" {
   default     = ""
 }
 
+output "password" {
+  value = var.admin_password1
+}
+
 resource "random_password" "example" {
   length  = 16
   special = true
