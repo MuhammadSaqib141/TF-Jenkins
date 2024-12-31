@@ -29,10 +29,8 @@ pipeline {
                         password1 = input message: 'Please enter the password for Storage:', 
                             parameters: [password(name: 'STORAGE_PASSWORD_1', description: 'Password for Storage')]
                         
-                        // Convert the Secret to String and then trim it
                         def plainPassword = password1.getPlainText().trim()
                         
-                        // Check if the password is empty and set to "default" if so
                         if (!plainPassword) {
                             echo "No password entered, setting to default"
                             password1 = "default"
@@ -40,14 +38,12 @@ pipeline {
                             password1 = plainPassword
                         }
         
-                        echo "Captured Password 1: ${password1}"
                     } else {
                         password1 = "default"
                     }
         
                     echo "Starting build process..."
                     
-                    // Set the password to the environment variable
                     env.TF_VAR_admin_password1 = password1
         
                     echo "Password is set: TF_VAR_admin_password1 = '${env.TF_VAR_admin_password1}'"
@@ -63,7 +59,6 @@ pipeline {
                 script {
                     echo "Cloning repository..."
                     git url: 'https://github.com/MuhammadSaqib141/TF-Jenkins.git', branch: 'main'
-                    sh 'cd jenkinsfile-with-terrformcode'
 
                 }
             }
@@ -72,10 +67,11 @@ pipeline {
         stage('Terraform Init & Plan') {
             steps {
                 script {
-                    echo "Running Terraform with the following environment variable:"
-                    echo "TF_VAR_admin_password1: '${env.TF_VAR_admin_password1}'"
+
 
                     sh '''
+                    cd jenkinsfile-with-terrformcode
+
                     terraform init -upgrade
                     terraform apply -auto-approve \
                         -var="client_id=$ARM_CLIENT_ID" \
