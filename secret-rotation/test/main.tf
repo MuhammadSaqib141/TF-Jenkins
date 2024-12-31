@@ -52,25 +52,3 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "kv_expiry_event_su
 }
 
 
-
-
-resource "azurerm_key_vault" "kv" {
-  name                = "saqib-kv-tf-testt"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku_name            = "standard"
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-
-}
-
-
-resource "azurerm_eventgrid_system_topic_event_subscription" "kv_expiry_event_subscription" {
-  name                             = "kv-expiry-subscription"
-  eventhub_endpoint_id              = azurerm_eventhub.eventhub.id
-  resource_group_name = azurerm_resource_group.rg.name
-  system_topic = azurerm_eventgrid_system_topic.kv_system_topic.name
-
-  included_event_types = [
-    "Microsoft.KeyVault.SecretNearExpiry"
-  ]
-}
