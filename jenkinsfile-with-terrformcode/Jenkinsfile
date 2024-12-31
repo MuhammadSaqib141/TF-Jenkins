@@ -1,0 +1,90 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'TYPE', choices: ['Compute', 'Network', 'Storage'], description: 'Select the type')
+    }
+
+    environment {
+        ARM_CLIENT_ID      = credentials('AZURE_CLIENT_ID') 
+        ARM_CLIENT_SECRET  = credentials('AZURE_CLIENT_SECRET') 
+        ARM_TENANT_ID      = credentials('AZURE_TENANT_ID') 
+        ARM_SUBSCRIPTION_ID = credentials('AZURE_SUBSCRIPTION_ID')
+    }
+
+    stages {
+
+        stage('Input and Build') {
+            when {
+                equals expected: 'Storage', actual: "${params.TYPE}"
+            }
+            steps {
+                script {
+                    echo "Selected TYPE: ${params.TYPE}"
+
+                    needPassword = input message: 'Do you need to provide a password for Storage?', 
+                        parameters: [choice(name: 'NEED_PASSWORD', choices: ['No', 'Yes'], description: 'Need password?')]
+
+                    if (needPassword == 'Yes') {
+                        password1 = input message: 'Please enter the password for Storage:', 
+                            parameters: [password(name: 'STORAGE_PASSWORD_1', description: 'Password for Storage')]
+                        
+                        if (!password1?.trim()) {
+                            echo "No password entered, setting to default"
+                            password1 = "default"
+                        }
+
+                        echo "Captured Password 1: ${password1}"
+                    } else {
+                        password1 = "default"
+                    }
+
+                    echo "Starting build process..."
+                    
+                    env.TF_VAR_admin_password1 = password1
+
+                    echo "Password is set: TF_VAR_admin_password1 = '${env.TF_VAR_admin_password1}'"
+                }
+            }
+        }
+
+        
+
+
+
+        stage('Clone Repository') {
+            steps {
+                script {
+                    echo "Cloning repository..."
+                    git url: 'https://github.com/MuhammadSaqib141/TF-Jenkins.git', branch: 'main'
+                }
+            }
+        }
+
+        stage('Terraform Init & Plan') {
+            steps {
+                script {
+                    echo "Running Terraform with the following environment variable:"
+                    echo "TF_VAR_admin_password1: '${env.TF_VAR_admin_password1}'"
+
+                    sh '''
+                    terraform init -upgrade
+                    terraform apply -auto-approve \
+                        -var="client_id=$ARM_CLIENT_ID" \
+                        -var="client_secret=$ARM_CLIENT_SECRET" \
+                        -var="tenant_id=$ARM_TENANT_ID" \
+                        -var="subscription_id=$ARM_SUBSCRIPTION_ID" \
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Resource Group and Vnet created successfully using Terraform!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

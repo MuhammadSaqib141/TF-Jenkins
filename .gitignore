@@ -1,0 +1,39 @@
+# Azure Functions artifacts
+**/bin/
+**/obj/
+**/appsettings.json
+**/local.settings.json
+
+# Azurite artifacts
+**/__blobstorage__/
+**/__queuestorage__/
+**/__azurite_db*__.json
+
+# Terraform files
+**/*.tfstate
+**/*.tfstate.backup
+**/.terraform/
+**/.terraform.lock.hcl
+
+# Terraform crash logs
+**/crash.log
+
+# Terraform override files
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+
+# Sensitive Terraform files
+**/terraform.tfvars
+**/*.auto.tfvars
+**/*.plan
+
+# Ignore editor-specific and OS-specific files
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.bak
+**/*.tmp
+**/.DS_Store
+**/Thumbs.db
