@@ -17,6 +17,13 @@ resource "azurerm_subnet" "example" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
+resource "azurerm_public_ip" "example" {
+  name                = "example-public-ip"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  allocation_method   = "Dynamic"
+}
+
 resource "azurerm_network_interface" "example" {
   name                = "example-nic"
   location            = azurerm_resource_group.example.location
@@ -26,17 +33,8 @@ resource "azurerm_network_interface" "example" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.example.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.example.id
   }
-}
-
-variable "admin_password1" {
-  description = "Admin password for the VM"
-  type        = string
-  default     = ""
-}
-
-output "password" {
-  value = var.admin_password1
 }
 
 resource "random_password" "example" {
@@ -44,17 +42,30 @@ resource "random_password" "example" {
   special = true
   upper   = true
   lower   = true
-  numeric  = true
+  numeric = true
 }
 
+
+data "azurerm_key_vault" "example" {
+  name                        = "saqib-kv-tf"
+  resource_group_name = "saqibrg-secret-rotation"
+}
+
+resource "azurerm_key_vault_secret" "example" {
+    name         = "vm-admin-password"
+    value        = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
+    key_vault_id = data.azurerm_key_vault.example.id
+}
+
+
 resource "azurerm_linux_virtual_machine" "example" {
-  name                = "example-machine"
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
-  size                = "Standard_F2"
-  disable_password_authentication = false
-  admin_username      = "adminuser"
-  admin_password      = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
+  name                               = "example-machine"
+  resource_group_name                = azurerm_resource_group.example.name
+  location                           = azurerm_resource_group.example.location
+  size                               = "Standard_F2"
+  disable_password_authentication    = false
+  admin_username                     = "adminuser"
+  admin_password                     = azurerm_key_vault_secret.example.value
 
   network_interface_ids = [
     azurerm_network_interface.example.id,
@@ -72,3 +83,9 @@ resource "azurerm_linux_virtual_machine" "example" {
     version   = "latest"
   }
 }
+
+# Outputs
+output "password" {
+  value = azurerm_key_vault_secret.example.value
+}
+
