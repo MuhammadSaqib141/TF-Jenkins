@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "example" {
-  name     = "saqib-resources"
+  name     = "example-resources"
   location = "West Europe"
 }
 
@@ -29,7 +29,7 @@ resource "azurerm_network_interface" "example" {
   }
 }
 
-variable "admin_password" {
+variable "admin_password1" {
   description = "Admin password for the VM"
   type        = string
   default     = ""
@@ -40,7 +40,7 @@ resource "random_password" "example" {
   special = true
   upper   = true
   lower   = true
-  number  = true
+  numeric  = true
 }
 
 resource "azurerm_linux_virtual_machine" "example" {
@@ -49,9 +49,9 @@ resource "azurerm_linux_virtual_machine" "example" {
   location            = azurerm_resource_group.example.location
   size                = "Standard_F2"
   disable_password_authentication = false
-
   admin_username      = "adminuser"
-  admin_password      = var.admin_password != "" ? var.admin_password : random_password.example.result
+  admin_password      = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
+
   network_interface_ids = [
     azurerm_network_interface.example.id,
   ]
