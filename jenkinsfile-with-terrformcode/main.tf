@@ -65,6 +65,11 @@ resource "azurerm_key_vault_secret" "example" {
     name         = "test-admin-password"
     value        = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
     key_vault_id = data.azurerm_key_vault.example.id
+      lifecycle {
+      ignore_changes = [
+        value,
+      ]
+  }
 }
 
 
@@ -75,7 +80,7 @@ resource "azurerm_linux_virtual_machine" "example" {
   size                               = "Standard_F2"
   disable_password_authentication    = false
   admin_username                     = "adminuser"
-  admin_password                     = azurerm_key_vault_secret.example.value
+  admin_password                     = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
 
   network_interface_ids = [
     azurerm_network_interface.example.id,
@@ -91,6 +96,11 @@ resource "azurerm_linux_virtual_machine" "example" {
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "22_04-lts"
     version   = "latest"
+  }
+    lifecycle {
+    ignore_changes = [
+      admin_password,
+    ]
   }
 }
 
