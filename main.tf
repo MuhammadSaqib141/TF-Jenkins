@@ -62,7 +62,7 @@ data "azurerm_key_vault" "example" {
 }
 
 resource "azurerm_key_vault_secret" "example" {
-    name         = "vm-admin-password"
+    name         = "test-admin-password"
     value        = var.admin_password1 != "default" ? var.admin_password1 : random_password.example.result
     key_vault_id = data.azurerm_key_vault.example.id
 }
