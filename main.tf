@@ -90,8 +90,6 @@ resource "azurerm_linux_virtual_machine" "example" {
   }
 }
 
-# Outputs
-output "password" {
-  value = azurerm_key_vault_secret.example.value
-}
+
+
 
