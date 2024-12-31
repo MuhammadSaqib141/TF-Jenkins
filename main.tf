@@ -1,7 +1,7 @@
 variable "admin_password1" {
   description = "Admin password for the VM"
   type        = string
-  default     = ""
+  default     = "default"
 }
 
 output "name" {
@@ -69,7 +69,7 @@ resource "azurerm_key_vault_secret" "example" {
 
 
 resource "azurerm_linux_virtual_machine" "example" {
-  name                               = "example-machine"
+  name                               = "kv-sec-test-machine"
   resource_group_name                = azurerm_resource_group.example.name
   location                           = azurerm_resource_group.example.location
   size                               = "Standard_F2"
